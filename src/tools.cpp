@@ -16,7 +16,12 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     * Calculate the RMSE here.
   */
   VectorXd rmse(4);
+  rmse << 0,0,0,0;
   VectorXd _diff(4);
+  if(estimations.size() != ground_truth.size() || estimations.size() == 0){
+    // std::cout << "Return 0 rmse" << '\n';
+    return rmse;
+  }
   for (size_t i = 0; i < estimations.size(); i++) {
     _diff =  ground_truth[i] - estimations[i]; // Diff
     _diff = _diff.array().square(); // Square
@@ -42,14 +47,15 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 
   // Calculate intermediate terms
   float c1 = px*px + py*py;
-  float c2 = sqrt(c1);
-  float c3 = c1 * c2;
-
   // Check for division by zero:
   if (c1 < 0.00001){
-    std::cout << "Division by zero!!!" << std::endl;
-    return Hj;
+    // std::cout << "Division by zero!!!" << std::endl;
+    // return Hj;
+    // Add a very small normalizing factor:
+    c1 += 0.00001;
   }
+  float c2 = sqrt(c1);
+  float c3 = c1 * c2;
 
   Hj << (px/c2), (py/c2), 0, 0,
         -(py/c1), (px/c1), 0, 0,
